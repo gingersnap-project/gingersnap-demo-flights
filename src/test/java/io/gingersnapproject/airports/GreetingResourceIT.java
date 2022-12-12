@@ -1,4 +1,4 @@
-package org.acme;
+package io.gingersnapproject.airports;
 
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 

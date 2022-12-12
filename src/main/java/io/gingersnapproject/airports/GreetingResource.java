@@ -1,4 +1,4 @@
-package org.acme;
+package io.gingersnapproject.airports;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
