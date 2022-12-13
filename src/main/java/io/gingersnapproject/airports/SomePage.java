@@ -3,6 +3,7 @@ package io.gingersnapproject.airports;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -16,6 +17,7 @@ public class SomePage {
 
     private final Template page;
 
+    @Inject
     public SomePage(Template page) {
         this.page = requireNonNull(page, "page is required");
     }
