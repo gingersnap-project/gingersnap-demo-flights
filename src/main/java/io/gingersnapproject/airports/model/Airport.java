@@ -1,10 +1,13 @@
 package io.gingersnapproject.airports.model;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import io.quarkus.panache.common.Page;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToOne;
+import java.util.List;
 
 @Entity
 public class Airport extends PanacheEntity {
@@ -17,4 +20,10 @@ public class Airport extends PanacheEntity {
 
    @OneToOne(fetch = FetchType.LAZY)
    public Country country;
+
+   public static List<Airport> getSome(int count) {
+      PanacheQuery<Airport> airports = Airport.findAll();
+      airports.page(Page.ofSize(count));
+      return airports.list();
+   }
 }

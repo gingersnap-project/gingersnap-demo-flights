@@ -6,12 +6,11 @@ import io.quarkus.panache.common.Page;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import java.util.List;
 
 @Entity
-//code","name","airline","destination","terminal","scheduleTime","aircraftType","aircraftSubType","direction","dayOfWeek"
-//"3O121-2-A","3O121","3O","NDR",1,"18:35:00","32S","320","A",2
 public class Flight extends PanacheEntity {
    public String code;
    public String name;

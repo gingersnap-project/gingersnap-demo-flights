@@ -5,7 +5,7 @@ import io.gingersnapproject.airports.model.Airline;
 import io.gingersnapproject.airports.model.Airport;
 import io.gingersnapproject.airports.model.Country;
 import io.gingersnapproject.airports.model.Flight;
-import io.gingersnapproject.airports.model.Gate;
+import io.gingersnapproject.airports.model.Status;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -34,7 +34,7 @@ public class FlightsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/airport")
     public List<Airport> allAirports() {
-        return Airport.<Airport>listAll().subList(0,50);
+        return Airport.getSome(50);
     }
 
     @GET
@@ -46,15 +46,16 @@ public class FlightsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/gate")
-    public List<Gate> allGates() {
-        return Gate.listAll();
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
     @Path("/aircraft")
     public List<Aircraft> allAircrafts() {
         return Aircraft.listAll();
     }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/status")
+    public List<Status> allStatus() {
+        return Status.listAll();
+    }
+
 }

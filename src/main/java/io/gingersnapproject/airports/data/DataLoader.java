@@ -5,9 +5,8 @@ import io.gingersnapproject.airports.model.Airline;
 import io.gingersnapproject.airports.model.Airport;
 import io.gingersnapproject.airports.model.Country;
 import io.gingersnapproject.airports.model.Flight;
-import io.gingersnapproject.airports.model.Gate;
+import io.gingersnapproject.airports.model.Status;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import io.quarkus.logging.Log;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
@@ -19,22 +18,19 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class DataLoader {
-
    public static final String COUNTRIES_FILE_NAME = "countries.csv";
-   public static final String GATES_FILE_NAME = "gates.csv";
    public static final String AIRPORTS_FILE_NAME = "airports.csv";
    public static final String AIRCRAFTS_FILE_NAME = "aircrafts.csv";
    public static final String AIRLINES_FILE_NAME = "airlines.csv";
    public static final String FLIGHTS_FILE_NAME = "flights.csv";
+   public static final String STATUS_FILE_NAME = "status.csv";
 
    private Map<String, Airline> airlinesMap = new HashMap<>();
    private Map<String, Aircraft> aircraftsMap = new HashMap<>();
@@ -51,8 +47,8 @@ public class DataLoader {
       loadCountries();
       loadAircrafts();
       loadAirports();
-      loadGates();
       loadAirlines();
+      loadStatus();
       loadFlights();
    }
 
@@ -62,14 +58,21 @@ public class DataLoader {
 
    public void loadFlights() {
       load(FLIGHTS_FILE_NAME, line -> {
+         Airline airline = airlinesMap.get(line[2].trim());
+         Airport airport = airportsMap.get( line[3].trim());
+         Aircraft aircraft = aircraftsMap.get(line[6].trim() + '_' + line[7].trim());
+         if (airline == null || airport == null || aircraft == null) {
+            return null;
+         }
+
          Flight flight = new Flight();
          flight.code = line[0].trim();
          flight.name = line[1].trim();
-         flight.airline = airlinesMap.get(line[2].trim());
-         flight.destination = Airport.find("iata", line[3].trim()).<Airport>firstResultOptional().orElse(null);
+         flight.airline = airline;
+         flight.destination = airport;
          flight.terminal = Integer.valueOf(line[4].trim());
          flight.scheduleTime = line[5].trim();
-         flight.aircraft = aircraftsMap.get(line[6].trim() + line[7].trim());
+         flight.aircraft = aircraft;
          flight.direction = line[8].trim();
          flight.dayOfWeek = Integer.valueOf(line[9].trim());
          return flight;
@@ -87,7 +90,7 @@ public class DataLoader {
       });
       List<Airline> airlines = Airline.listAll();
       for (Airline airline: airlines) {
-         airlinesMap.put(airline.nvls, airline);
+         airlinesMap.put(airline.iata, airline);
       }
    }
 
@@ -111,6 +114,15 @@ public class DataLoader {
 
    }
 
+   public void loadStatus() {
+      load(STATUS_FILE_NAME, line -> {
+         Status status = new Status();
+         status.value = line[0].trim();
+         status.type = line[1].trim();
+         return status;
+      });
+   }
+
    public void loadCountries() {
       load(COUNTRIES_FILE_NAME, line -> {
          Country country = new Country();
@@ -125,15 +137,6 @@ public class DataLoader {
       }
    }
 
-   public void loadGates() {
-      load(GATES_FILE_NAME, line -> {
-         Gate gate = new Gate();
-         gate.name = line[0].trim();
-         gate.terminal = line[1].trim();
-         return gate;
-      });
-   }
-
    public void loadAircrafts() {
       load(AIRCRAFTS_FILE_NAME, line -> {
          Aircraft aircraft = new Aircraft();
@@ -145,7 +148,7 @@ public class DataLoader {
       });
       List<Aircraft> aircrafts = Aircraft.listAll();
       for (Aircraft aircraft: aircrafts) {
-         aircraftsMap.put(aircraft.iataMain + aircraft.iataSub, aircraft);
+         aircraftsMap.put(aircraft.iataMain + "_" + aircraft.iataSub, aircraft);
       }
    }
 
@@ -161,7 +164,10 @@ public class DataLoader {
          br.readLine();
          while ((line = br.readLine()) != null) {
             String[] values = line.split(",");
-            function.apply(values).persist();
+            PanacheEntity panacheEntity = function.apply(values);
+            if (panacheEntity != null) {
+               panacheEntity.persist();
+            }
             id++;
          }
       } catch (IOException e) {
