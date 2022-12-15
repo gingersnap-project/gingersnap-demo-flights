@@ -1,72 +1,49 @@
 package io.gingersnapproject.airports;
 
-import io.gingersnapproject.airports.data.DataLoader;
-import io.gingersnapproject.airports.model.Aircraft;
-import io.gingersnapproject.airports.model.Airline;
-import io.gingersnapproject.airports.model.Airport;
-import io.gingersnapproject.airports.model.Country;
+import io.gingersnapproject.airports.client.GingersnapAPIClient;
 import io.gingersnapproject.airports.model.Flight;
 import io.quarkus.logging.Log;
+import io.smallrye.common.annotation.Blocking;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.core.MediaType;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
-@Path("/demo")
+@Path("/flights")
 public class FlightsResource {
 
-    @Inject
-    DataLoader dataLoader;
+   @Inject
+   @RestClient
+   GingersnapAPIClient gingersnapAPIClient;
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public String loadData(@QueryParam("reload") Boolean reload) {
-        if (reload != null && reload) {
-            Log.info("Reloading all data");
-            dataLoader.cleanup();
-            dataLoader.loadAll();
-            Log.info("Data reloaded");
-        }
-        return "Airports demo is up";
-    }
+   @GET
+   @Blocking
+   public String test() {
+      Log.info(gingersnapAPIClient.countries());
+      return "toto";
+   }
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/flight")
-    public List<Flight> allFlights() {
-        return Flight.getSome(20);
-    }
+   @GET
+   @Produces(MediaType.APPLICATION_JSON)
+   @Path("{destination}")
+   public List<Flight> flights(@PathParam("destination") String destination) {
+      if (destination == null || destination.isEmpty()) {
+         return Flight.getSome(50);
+      }
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/airline")
-    public List<Airline> allAirlines() {
-        return Airline.listAll();
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/airport")
-    public List<Airport> allAirports() {
-        return Airport.getSome(50);
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/country")
-    public List<Country> allCountries() {
-        return Country.listAll();
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/aircraft")
-    public List<Aircraft> allAircrafts() {
-        return Aircraft.listAll();
-    }
+      return  Flight.find("destination.city", destination).list();
+   }
 
 }

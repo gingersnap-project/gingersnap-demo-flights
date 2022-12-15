@@ -29,14 +29,14 @@ services:
     ports:
       # Expose on 8090 so Quarkus Dev can run on 8080
       - 8090:8080
-  ginersnap-cache-manager:
-    image: quay.io/gingersnap/cache-manager:latest
-    ports:
-      - "11221:11222"
-      - "8080:8080"
-    container_name: gingersnap
-    environment:
-      USER: admin
-      PASS: password
-    networks:
-      - mynetwork
+#  ginersnap-cache-manager:
+#    image: quay.io/gingersnap/cache-manager:latest
+#    ports:
+#      - "11222:11222"
+#      - "8080:8080"
+#    container_name: gingersnap
+#    environment:
+#      USER: admin
+#      PASS: password
+#    networks:
+#      - mynetwork
