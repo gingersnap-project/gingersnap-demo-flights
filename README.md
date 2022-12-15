@@ -19,4 +19,87 @@ You can run your application in dev mode that enables live coding using:
 ./mvnw compile quarkus:dev
 ```
 
-## TODO
+## Load Data in MySQL
+
+* Load all the data with `curl http://localhost:8082/demo?reload=true&all=true`
+* Load all the data with `curl http://localhost:8082/demo?reload=true&all=true`
+
+## Config for Cache Manager
+
+```properties
+quarkus.banner.enabled=false
+quarkus.package.type=uber-jar
+
+quarkus.smallrye-openapi.info-title=Gingersnap API
+quarkus.smallrye-openapi.info-contact-url=https://gingersnap-project.io
+quarkus.smallrye-openapi.info-license-name=Apache 2.0
+quarkus.smallrye-openapi.info-license-url=https://www.apache.org/licenses/LICENSE-2.0.html
+
+quarkus.datasource.db-kind=MYSQL
+quarkus.datasource.username=gingersnap_user
+quarkus.datasource.password=password
+quarkus.datasource.reactive.url=mysql://localhost:3306/airports
+
+gingersnap.rule.us-country.key-type=PLAIN
+gingersnap.rule.us-country.plain-separator=:
+gingersnap.rule.us-country.select-statement=select name, continent from Country where isoCode = ?
+
+gingersnap.rule.us-country.connector.schema=airports
+gingersnap.rule.us-country.connector.table=Country
+
+gingersnap.rule.us-airports.key-type=PLAIN
+gingersnap.rule.us-airports.plain-separator=:
+gingersnap.rule.us-airports.select-statement=select name, city from Airport where iata = ?
+
+gingersnap.rule.us-airports.connector.schema=airports
+gingersnap.rule.us-airports.connector.table=Airport
+
+quarkus.devservices.enabled=false
+quarkus.elasticsearch.health.enabled=false
+```
+
+## Config for DB Syncer
+```properties
+quarkus.banner.enabled=false
+quarkus.package.type=uber-jar
+
+# Connection configuration
+%dev.gingersnap.database.type=MYSQL
+%dev.gingersnap.database.host=localhost
+%dev.gingersnap.database.port=3306
+%dev.gingersnap.database.user=gingersnap_user
+%dev.gingersnap.database.password=password
+%dev.gingersnap.cache.uri=hotrod://127.0.0.1:11222
+
+# Country table cache
+%dev.gingersnap.rule.us-country.connector.schema=airports
+%dev.gingersnap.rule.us-country.connector.table=Country
+%dev.gingersnap.rule.us-country.key-type=PLAIN
+%dev.gingersnap.rule.us-country.plain-separator=:
+%dev.gingersnap.rule.us-country.value-columns=name,continent
+%dev.gingersnap.rule.us-country.key-columns=isoCode
+
+# Airport table cache
+%dev.gingersnap.rule.us-airport.connector.schema=airports
+%dev.gingersnap.rule.us-airport.connector.table=Airport
+%dev.gingersnap.rule.us-airport.key-type=PLAIN
+%dev.gingersnap.rule.us-airport.plain-separator=:
+%dev.gingersnap.rule.us-airport.value-columns=name,city
+%dev.gingersnap.rule.us-airport.key-columns=iata
+
+# Flight table cache
+%dev.gingersnap.rule.us-flight.connector.schema=airports
+%dev.gingersnap.rule.us-flight.connector.table=Airport
+%dev.gingersnap.rule.us-flight.key-type=PLAIN
+%dev.gingersnap.rule.us-flight.plain-separator=:
+%dev.gingersnap.rule.us-flight.value-columns=name,city,state
+%dev.gingersnap.rule.us-flight.key-columns=code
+
+%dev.quarkus.devservices.enabled=false
+
+
+## Kubernetes Configuration
+gingersnap.k8s.rule-config-map=
+gingersnap.k8s.namespace=default
+
+```
