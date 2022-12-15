@@ -32,7 +32,7 @@ public class FlightsResource {
    @Blocking
    public String test() {
       Log.info(gingersnapAPIClient.countries());
-      return "toto";
+      return "hello";
    }
 
    @GET
