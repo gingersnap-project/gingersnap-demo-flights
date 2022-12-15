@@ -1,18 +1,16 @@
-package io.gingersnapproject.airports.data;
+package io.gingersnapproject.airports.service;
 
 import io.gingersnapproject.airports.model.Aircraft;
 import io.gingersnapproject.airports.model.Airline;
 import io.gingersnapproject.airports.model.Airport;
 import io.gingersnapproject.airports.model.Country;
+import io.gingersnapproject.airports.model.DepartureFlightState;
 import io.gingersnapproject.airports.model.Flight;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import io.quarkus.logging.Log;
 import io.quarkus.panache.common.Parameters;
-import io.quarkus.runtime.ShutdownEvent;
-import io.quarkus.runtime.StartupEvent;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
 import javax.transaction.Transactional;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,18 +28,6 @@ public class DataLoader {
    public static final String AIRCRAFTS_FILE_NAME = "aircrafts.csv";
    public static final String AIRLINES_FILE_NAME = "airlines.csv";
    public static final String FLIGHTS_FILE_NAME = "flights.csv";
-
-   void onStart(@Observes StartupEvent ev) {
-      Log.info("Airports Demo App is starting Powered by Quarkus");
-      Log.info("  _   _   _   _   _   _   _   _");
-      Log.info(" / \\ / \\ / \\ / \\ / \\ / \\ / \\ / \\");
-      Log.info("( A | i | r | p | o | r | t | s )");
-      Log.info(" \\_/ \\_/ \\_/ \\_/ \\_/ \\_/ \\_/ \\_/");
-   }
-
-   void onStop(@Observes ShutdownEvent ev) {
-      Log.info("Airports Demo App is shutting down...");
-   }
 
    public void loadAll() {
       // Ref data
@@ -78,6 +64,7 @@ public class DataLoader {
          flight.aircraft = aircraft.get();
          flight.direction = line[8].trim();
          flight.dayOfWeek = Integer.valueOf(line[9].trim());
+         flight.state = DepartureFlightState.SCH.name();
          return flight;
       });
       Log.info("Flights loaded");
@@ -177,5 +164,10 @@ public class DataLoader {
       Airline.deleteAll();
       Airport.deleteAll();
       Country.deleteAll();
+   }
+
+   @Transactional
+   public void cleanupFlights() {
+      Flight.deleteAll();
    }
 }
