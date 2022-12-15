@@ -5,9 +5,9 @@ import io.gingersnapproject.airports.model.Airline;
 import io.gingersnapproject.airports.model.Airport;
 import io.gingersnapproject.airports.model.Country;
 import io.gingersnapproject.airports.model.Flight;
-import io.gingersnapproject.airports.model.Status;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import io.quarkus.logging.Log;
+import io.quarkus.panache.common.Parameters;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 
@@ -18,9 +18,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 @ApplicationScoped
@@ -30,12 +30,6 @@ public class DataLoader {
    public static final String AIRCRAFTS_FILE_NAME = "aircrafts.csv";
    public static final String AIRLINES_FILE_NAME = "airlines.csv";
    public static final String FLIGHTS_FILE_NAME = "flights.csv";
-   public static final String STATUS_FILE_NAME = "status.csv";
-
-   private Map<String, Airline> airlinesMap = new HashMap<>();
-   private Map<String, Aircraft> aircraftsMap = new HashMap<>();
-   private Map<String, Country> countryMap = new HashMap<>();
-   private Map<String, Airport> airportsMap = new HashMap<>();
 
    void onStart(@Observes StartupEvent ev) {
       Log.info("Airports Demo App is starting Powered by Quarkus");
@@ -43,41 +37,52 @@ public class DataLoader {
       Log.info(" / \\ / \\ / \\ / \\ / \\ / \\ / \\ / \\");
       Log.info("( A | i | r | p | o | r | t | s )");
       Log.info(" \\_/ \\_/ \\_/ \\_/ \\_/ \\_/ \\_/ \\_/");
-
-      loadCountries();
-      loadAircrafts();
-      loadAirports();
-      loadAirlines();
-      loadStatus();
-      loadFlights();
    }
 
    void onStop(@Observes ShutdownEvent ev) {
       Log.info("Airports Demo App is shutting down...");
    }
 
+   public void loadAll() {
+      // Ref data
+      loadCountries();
+      loadAircrafts();
+      loadAirlines();
+      loadAirports();
+
+      // Daily data
+      loadFlights();
+   }
+
+
    public void loadFlights() {
       load(FLIGHTS_FILE_NAME, line -> {
-         Airline airline = airlinesMap.get(line[2].trim());
-         Airport airport = airportsMap.get( line[3].trim());
-         Aircraft aircraft = aircraftsMap.get(line[6].trim() + '_' + line[7].trim());
-         if (airline == null || airport == null || aircraft == null) {
+         String airlineIata = line[2].trim();
+         String airportIata = line[3].trim();
+         Optional<Airline> airline = Airline.find("iata", airlineIata).firstResultOptional();
+         Optional<Airport> airport = Airport.find("iata", airportIata).firstResultOptional();
+         Optional<Aircraft> aircraft = Aircraft.find("iataMain = :iataMain and iataSub = :iataSub",
+                           Parameters.with("iataMain", line[6].trim())
+                           .and("iataSub", line[7].trim())).firstResultOptional();
+         if (airline.isEmpty() || airport.isEmpty() || aircraft.isEmpty()) {
             return null;
          }
 
          Flight flight = new Flight();
          flight.code = line[0].trim();
          flight.name = line[1].trim();
-         flight.airline = airline;
-         flight.destination = airport;
+         flight.airline = airline.get();
+         flight.destination = airport.get();
          flight.terminal = Integer.valueOf(line[4].trim());
          flight.scheduleTime = line[5].trim();
-         flight.aircraft = aircraft;
+         flight.aircraft = aircraft.get();
          flight.direction = line[8].trim();
          flight.dayOfWeek = Integer.valueOf(line[9].trim());
          return flight;
       });
+      Log.info("Flights loaded");
    }
+
 
    public void loadAirlines() {
       load(AIRLINES_FILE_NAME, line -> {
@@ -88,10 +93,7 @@ public class DataLoader {
          airline.publicName = line[3].trim();
          return airline;
       });
-      List<Airline> airlines = Airline.listAll();
-      for (Airline airline: airlines) {
-         airlinesMap.put(airline.iata, airline);
-      }
+      Log.info("Airlines loaded");
    }
 
    public void loadAirports() {
@@ -99,7 +101,7 @@ public class DataLoader {
          Airport airport = new Airport();
          airport.iata = line[0].trim();
          airport.name = line[1].trim();
-         airport.country = countryMap.get(line[2].trim());
+         airport.country = Country.find("isoCode", line[2].trim()).firstResult();
          airport.city =  line[3].trim();
          int add = line.length - 7;
          airport.elevation_ft = Double.valueOf(line[4 + add].trim().trim());
@@ -107,21 +109,9 @@ public class DataLoader {
          airport.longitude_deg = Double.valueOf(line[6 + add].trim());
          return airport;
       });
-      List<Airport> airports = Airport.listAll();
-      for (Airport airport: airports) {
-         airportsMap.put(airport.iata, airport);
-      }
-
+      Log.info("Airports loaded");
    }
 
-   public void loadStatus() {
-      load(STATUS_FILE_NAME, line -> {
-         Status status = new Status();
-         status.value = line[0].trim();
-         status.type = line[1].trim();
-         return status;
-      });
-   }
 
    public void loadCountries() {
       load(COUNTRIES_FILE_NAME, line -> {
@@ -131,10 +121,7 @@ public class DataLoader {
          country.continent =  line[2].trim();
          return country;
       });
-      List<Country> countries = Country.listAll();
-      for (Country country: countries) {
-         countryMap.put(country.isoCode, country);
-      }
+      Log.info("Countries loaded");
    }
 
    public void loadAircrafts() {
@@ -146,17 +133,13 @@ public class DataLoader {
          aircraft.shortDescription =  line[3].trim();
          return aircraft;
       });
-      List<Aircraft> aircrafts = Aircraft.listAll();
-      for (Aircraft aircraft: aircrafts) {
-         aircraftsMap.put(aircraft.iataMain + "_" + aircraft.iataSub, aircraft);
-      }
+      Log.info("Aircrafts loaded");
    }
 
-   @Transactional
    public void load(String fileName, Function<String[], PanacheEntity> function) {
       InputStream resourceAsStream = this.getClass().getClassLoader()
             .getResourceAsStream("data/" + fileName);
-
+      List<PanacheEntity> entitiesBatch = new ArrayList<>();
       try (BufferedReader br = new BufferedReader(new InputStreamReader(resourceAsStream))) {
          String line;
          int id = 1;
@@ -165,13 +148,34 @@ public class DataLoader {
          while ((line = br.readLine()) != null) {
             String[] values = line.split(",");
             PanacheEntity panacheEntity = function.apply(values);
-            if (panacheEntity != null) {
-               panacheEntity.persist();
+            if (entitiesBatch.size() == 100) {
+               // Persist batch
+               persistList(entitiesBatch);
+               entitiesBatch.clear();
+            } else if (panacheEntity != null){
+               entitiesBatch.add(panacheEntity);
             }
             id++;
          }
+         // Persist remaining
+         persistList(entitiesBatch);
       } catch (IOException e) {
          throw new RuntimeException(e);
       }
+   }
+
+   @Transactional
+   public void persistList(List<PanacheEntity> entitiesToPersist) {
+      PanacheEntity.persist(entitiesToPersist);
+   }
+
+   @Transactional
+   public void cleanup() {
+      Log.info("Clean all data");
+      Flight.deleteAll();
+      Aircraft.deleteAll();
+      Airline.deleteAll();
+      Airport.deleteAll();
+      Country.deleteAll();
    }
 }

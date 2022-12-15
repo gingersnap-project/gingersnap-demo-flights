@@ -6,7 +6,7 @@ import io.quarkus.panache.common.Page;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import java.util.List;
 
 @Entity
@@ -18,7 +18,7 @@ public class Airport extends PanacheEntity {
    public double latitude_deg;
    public double longitude_deg;
 
-   @OneToOne(fetch = FetchType.LAZY)
+   @ManyToOne
    public Country country;
 
    public static List<Airport> getSome(int count) {
