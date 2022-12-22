@@ -1,0 +1,35 @@
+quarkus:
+  datasource:
+    db-kind: MYSQL
+    reactive:
+      url: mysql://localhost:3306/airports
+    port: 3306
+    user: gingersnap_user
+    password: password
+gingersnap:
+  rule:
+    us-country:
+      connector:
+        schema: airports
+        table: Country
+      select-statement: select * from Country where isoCode = ?
+    us-flight:
+      connector:
+        schema: airports
+        table: Flight
+      select-statement: select * from Flight where code = ?
+    us-aircraft:
+      connector:
+        schema: airports
+        table: Aircraft
+      select-statement: select * from Aircraft where iataMain = ? and iataSub = ?
+    us-airline:
+      connector:
+        schema: airports
+        table: Airline
+      select-statement: select * from Airline where iata = ?
+    us-airport:
+      connector:
+        schema: airports
+        table: Airport
+      select-statement: select * from Airport where iata = ?
