@@ -5,6 +5,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import java.util.List;
 
 @RegisterRestClient(configKey = "gingersnap-api")
@@ -12,6 +13,10 @@ import java.util.List;
 public interface GingersnapAPIClient {
 
    @GET
-   @Path("/us-country")
-   List<String> countries();
+   @Path("/us-flights")
+   List<CacheFlight> flights();
+
+   @GET
+   @Path("/us-flights/")
+   CacheFlight flight(String code);
 }

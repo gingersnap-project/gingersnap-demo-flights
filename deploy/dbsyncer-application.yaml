@@ -1,0 +1,38 @@
+quarkus:
+  http:
+    port: 8081
+gingersnap:
+  database:
+    type: MYSQL
+    host: localhost
+    port: 3306
+    user: gingersnap_user
+    password: password
+  cache:
+    uri: hotrod://127.0.0.1:11222
+  rule:
+    us-country:
+      connector:
+        schema: airports
+        table: Country
+      key-columns: isoCode
+    us-flight:
+      connector:
+        schema: airports
+        table: Flight
+      key-columns: code
+    us-aircraft:
+      connector:
+        schema: airports
+        table: Aircraft
+      key-columns: iataMain,iataSub
+    us-airline:
+      connector:
+        schema: airports
+        table: Airline
+      key-columns: iata
+    us-airport:
+      connector:
+        schema: airports
+        table: Airport
+      key-columns: iata

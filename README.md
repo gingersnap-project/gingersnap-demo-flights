@@ -1,4 +1,4 @@
-# code-with-quarkus Project
+# Gingersnap Caching demo project
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 

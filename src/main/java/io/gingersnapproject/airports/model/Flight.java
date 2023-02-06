@@ -26,7 +26,7 @@ public class Flight extends PanacheEntity {
 
    public int terminal;
    public String scheduleTime;
-   public String direction;
+   public boolean departure;
    public int dayOfWeek;
 
    public static List<Flight> getSome(int count) {
