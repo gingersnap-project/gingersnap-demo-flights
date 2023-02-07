@@ -70,33 +70,6 @@ quarkus.package.type=uber-jar
 %dev.gingersnap.database.password=password
 %dev.gingersnap.cache.uri=hotrod://127.0.0.1:11222
 
-# Country table cache
-%dev.gingersnap.rule.us-country.connector.schema=airports
-%dev.gingersnap.rule.us-country.connector.table=Country
-%dev.gingersnap.rule.us-country.key-type=PLAIN
-%dev.gingersnap.rule.us-country.plain-separator=:
-%dev.gingersnap.rule.us-country.value-columns=name,continent
-%dev.gingersnap.rule.us-country.key-columns=isoCode
-
-# Airport table cache
-%dev.gingersnap.rule.us-airport.connector.schema=airports
-%dev.gingersnap.rule.us-airport.connector.table=Airport
-%dev.gingersnap.rule.us-airport.key-type=PLAIN
-%dev.gingersnap.rule.us-airport.plain-separator=:
-%dev.gingersnap.rule.us-airport.value-columns=name,city
-%dev.gingersnap.rule.us-airport.key-columns=iata
-
-# Flight table cache
-%dev.gingersnap.rule.us-flight.connector.schema=airports
-%dev.gingersnap.rule.us-flight.connector.table=Airport
-%dev.gingersnap.rule.us-flight.key-type=PLAIN
-%dev.gingersnap.rule.us-flight.plain-separator=:
-%dev.gingersnap.rule.us-flight.value-columns=name,city,state
-%dev.gingersnap.rule.us-flight.key-columns=code
-
-%dev.quarkus.devservices.enabled=false
-
-
 ## Kubernetes Configuration
 gingersnap.k8s.rule-config-map=
 gingersnap.k8s.namespace=default
