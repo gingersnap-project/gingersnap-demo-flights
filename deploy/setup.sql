@@ -42,7 +42,7 @@ create table airports.Flight (
                         id bigint not null,
                         code varchar(255),
                         dayOfWeek integer not null,
-                        direction boolean,
+                        departure boolean,
                         name varchar(255),
                         scheduleTime varchar(255),
                         state varchar(255),

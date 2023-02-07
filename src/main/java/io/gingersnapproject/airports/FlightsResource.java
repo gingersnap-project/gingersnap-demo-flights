@@ -1,5 +1,6 @@
 package io.gingersnapproject.airports;
 
+import io.gingersnapproject.airports.client.CacheFlight;
 import io.gingersnapproject.airports.client.GingersnapAPIClient;
 import io.gingersnapproject.airports.model.Airport;
 import io.gingersnapproject.airports.model.Flight;
@@ -39,19 +40,6 @@ public class FlightsResource {
 
    @GET
    @Produces(MediaType.APPLICATION_JSON)
-   @Blocking
-   @Path("{iata}/cache")
-   public List<FlightDTO> flights() {
-      return gingersnapAPIClient.flights().stream().map(cf -> {
-         FlightDTO flightDTO = new FlightDTO();
-         flightDTO.name = cf.name;
-         flightDTO.code = cf.code;
-         return flightDTO;
-      }).collect(Collectors.toList());
-   }
-
-   @GET
-   @Produces(MediaType.APPLICATION_JSON)
    @Path("departures/{day}")
    @Blocking
    public List<Flight> flights(@PathParam("day") Integer day, @QueryParam("iata") Optional<String> iataOpt) {
@@ -66,15 +54,6 @@ public class FlightsResource {
       }
 
       return Flight.find("dayOfWeek",day).list();
-
-
-
-//            .list().stream().map(fdb -> {
-//               FlightDTO flightDTO = new FlightDTO();
-//               flightDTO.code = fdb.code;
-//               flightDTO.name = fdb.name;
-//               return flightDTO;
-//            }).collect(Collectors.toList());
    }
 
    @GET
@@ -84,6 +63,14 @@ public class FlightsResource {
    public Flight getByCode(@PathParam("code") String code) {
       Log.infof("Request flight code %s", code);
       return  Flight.find("code", code).firstResult();
+   }
+
+   @GET
+   @Produces(MediaType.APPLICATION_JSON)
+   @Blocking
+   @Path("cache/{code}")
+   public CacheFlight flights(@PathParam("code") String code) {
+      return gingersnapAPIClient.flight(code);
    }
 
 }

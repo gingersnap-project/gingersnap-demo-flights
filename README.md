@@ -22,7 +22,6 @@ You can run your application in dev mode that enables live coding using:
 ## Load Data in MySQL
 
 * Load all the data with `curl http://localhost:8082/demo?reload=true&all=true`
-* Load all the data with `curl http://localhost:8082/demo?reload=true&all=true`
 
 ## Config for Cache Manager
 
