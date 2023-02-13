@@ -12,6 +12,6 @@ import javax.ws.rs.PathParam;
 public interface GingersnapAPIClient {
 
    @GET
-   @Path("/us-flights/{code}")
+   @Path("/us-flight/{code}")
    CacheFlight flight(@PathParam("code") String code);
 }
