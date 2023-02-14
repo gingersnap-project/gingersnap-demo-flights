@@ -1,8 +1,8 @@
 package io.gingersnapproject.airports.model;
 
 public enum ArrivalFlightState {
-   SCH,
-   AIR,
+   SCH, // Scheduled to take place.
+   AIR, // The flight is en route.
    EXP,
    FIR,
    LND,

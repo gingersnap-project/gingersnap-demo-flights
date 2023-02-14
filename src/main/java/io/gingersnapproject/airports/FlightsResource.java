@@ -4,24 +4,27 @@ import io.gingersnapproject.airports.client.CacheAirport;
 import io.gingersnapproject.airports.client.CacheFlight;
 import io.gingersnapproject.airports.client.GingersnapAPIClient;
 import io.gingersnapproject.airports.model.Airport;
+import io.gingersnapproject.airports.model.DepartureFlightState;
 import io.gingersnapproject.airports.model.Flight;
 import io.quarkus.logging.Log;
 import io.smallrye.common.annotation.Blocking;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 
 import static io.quarkus.panache.common.Parameters.with;
 
@@ -64,6 +67,29 @@ public class FlightsResource {
    public Flight getByCode(@PathParam("code") String code) {
       Log.infof("Request flight code %s", code);
       return  Flight.find("code", code).firstResult();
+   }
+
+   @PUT
+   @Produces(MediaType.APPLICATION_JSON)
+   @Path("{code}")
+   @Blocking
+   @Transactional
+   public Response updateFlightState(@PathParam("code") String code, @QueryParam("state") Optional<DepartureFlightState> stateOpt) {
+      Log.infof("Change status for flight %s to %s", code, stateOpt);
+      if (stateOpt.isPresent()) {
+         Flight flight = Flight.find("code", code).<Flight>firstResultOptional()
+               .orElseThrow(() -> new NotFoundException(String.format("Flight %s not found", code)));
+         if (!flight.departure) {
+            return Response.status(Response.Status.BAD_REQUEST.getStatusCode(),
+                  String.format("Flight %s is not departure type")).build();
+         }
+
+         DepartureFlightState state = stateOpt.get();
+         Flight.update("update from Flight set state = ?1 where code = ?2", state.name(), code);
+         return Response.accepted().build();
+      }
+
+      return Response.notModified().build();
    }
 
    @GET

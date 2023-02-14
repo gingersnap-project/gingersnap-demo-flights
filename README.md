@@ -21,57 +21,34 @@ You can run your application in dev mode that enables live coding using:
 
 ## Load Data in MySQL
 
-* Load all the data with `curl http://localhost:8082/demo?reload=true&all=true`
-
-## Config for Cache Manager
-
-```properties
-quarkus.banner.enabled=false
-quarkus.package.type=uber-jar
-
-quarkus.smallrye-openapi.info-title=Gingersnap API
-quarkus.smallrye-openapi.info-contact-url=https://gingersnap-project.io
-quarkus.smallrye-openapi.info-license-name=Apache 2.0
-quarkus.smallrye-openapi.info-license-url=https://www.apache.org/licenses/LICENSE-2.0.html
-
-quarkus.datasource.db-kind=MYSQL
-quarkus.datasource.username=gingersnap_user
-quarkus.datasource.password=password
-quarkus.datasource.reactive.url=mysql://localhost:3306/airports
-
-gingersnap.rule.us-country.key-type=PLAIN
-gingersnap.rule.us-country.plain-separator=:
-gingersnap.rule.us-country.select-statement=select name, continent from Country where isoCode = ?
-
-gingersnap.rule.us-country.connector.schema=airports
-gingersnap.rule.us-country.connector.table=Country
-
-gingersnap.rule.us-airports.key-type=PLAIN
-gingersnap.rule.us-airports.plain-separator=:
-gingersnap.rule.us-airports.select-statement=select name, city from Airport where iata = ?
-
-gingersnap.rule.us-airports.connector.schema=airports
-gingersnap.rule.us-airports.connector.table=Airport
-
-quarkus.devservices.enabled=false
-quarkus.elasticsearch.health.enabled=false
+* Load all the data 
+```shell
+http 'http://localhost:8082/demo?reload=true&all=true'
 ```
 
-## Config for DB Syncer
-```properties
-quarkus.banner.enabled=false
-quarkus.package.type=uber-jar
+## Config 
 
-# Connection configuration
-%dev.gingersnap.database.type=MYSQL
-%dev.gingersnap.database.host=localhost
-%dev.gingersnap.database.port=3306
-%dev.gingersnap.database.user=gingersnap_user
-%dev.gingersnap.database.password=password
-%dev.gingersnap.cache.uri=hotrod://127.0.0.1:11222
+* Cache manager config: ./deploy/cache-manager-application.properties
+* DB Sync config: ./deploy/db-sync-application.properties
 
-## Kubernetes Configuration
-gingersnap.k8s.rule-config-map=
-gingersnap.k8s.namespace=default
+## Eager caching scenario
 
+1. List all the departure flights of a day to pick up a code or use `UX1098-2-D` for example. This is a database call
+```shell
+http http://localhost:8082/flights/2 
+```
+
+2. Using the code flight, get the detail from the cache 
+```shell
+http 'http://localhost:8082/flights/cache/UX1098-2-D' 
+```
+
+3. Change the state of the flight (SCH, DEL, WIL, GTO, BRD, GCL, GTD, DEP, CNX, GCH, TOM)
+```shell
+http put 'localhost:8082/flights/UX1098-2-D?state=DEL' 
+```
+
+4. Get the detail from the cache again, and check how the cache was updated without any call
+```shell
+http 'http://localhost:8082/flights/cache/UX1098-2-D' 
 ```
