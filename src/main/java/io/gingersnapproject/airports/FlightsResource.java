@@ -1,5 +1,6 @@
 package io.gingersnapproject.airports;
 
+import io.gingersnapproject.airports.client.CacheAirport;
 import io.gingersnapproject.airports.client.CacheFlight;
 import io.gingersnapproject.airports.client.GingersnapAPIClient;
 import io.gingersnapproject.airports.model.Airport;
@@ -69,8 +70,18 @@ public class FlightsResource {
    @Produces(MediaType.APPLICATION_JSON)
    @Blocking
    @Path("cache/{code}")
-   public CacheFlight flights(@PathParam("code") String code) {
-      return gingersnapAPIClient.flight(code);
+   public FlightDTO flights(@PathParam("code") String code) {
+      CacheFlight flight = gingersnapAPIClient.flight(code);
+      CacheAirport destination = gingersnapAPIClient.destination(flight.destination_id);
+
+      FlightDTO flightDTO = new FlightDTO();
+      flightDTO.code = flight.code;
+      flightDTO.name = flight.name;
+      flightDTO.scheduleTime = flight.scheduleTime;
+      flightDTO.state = flight.state;
+      flightDTO.destinationCity = destination.name;
+
+      return flightDTO;
    }
 
 }
