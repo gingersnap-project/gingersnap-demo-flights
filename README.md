@@ -33,7 +33,7 @@ http 'http://localhost:8082/demo?reload=true&all=true'
 
 ## Eager caching scenario
 
-1. List all the departure flights of a day to pick up a code or use `UX1098-2-D` for example. This is a database call
+1. List all the departure flights of a day (1,2,3,4,5,6,7) to pick up a code or use `UX1098-2-D` for example. This is a database call
 ```shell
 http http://localhost:8082/flights/2 
 ```
