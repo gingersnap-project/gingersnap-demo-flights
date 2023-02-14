@@ -4,12 +4,14 @@ This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
 
+Demo doc: https://docs.google.com/document/d/1nGXKwvcn9Js_K3qIIeg6ZKA-hL9i1CDpTGJaE-ZFLos/edit
+
 ## Dependencies
 
 ### Config
 
-* Cache manager config: ./deploy/cache-manager-application.properties
-* DB Sync config: ./deploy/db-sync-application.properties
+* Cache manager config: `./deploy/cache-manager-application.properties`
+* DB Sync config: `./deploy/db-sync-application.properties`
 
 ### Run
 * Db Syncer

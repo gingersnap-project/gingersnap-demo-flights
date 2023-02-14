@@ -21,6 +21,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -91,6 +92,18 @@ public class FlightsResource {
 
       return Response.notModified().build();
    }
+
+   // TODO: Lazy Query
+//
+//   @GET
+//   @Produces(MediaType.APPLICATION_JSON)
+//   @Blocking
+//   @Path("cache/departures/{day}")
+//   public List<FlightDTO> flightsFromCache(@PathParam("day") Integer day) {
+//      List<FlightDTO> departures = gingersnapAPIClient.departures(day);
+//
+//      return new ArrayList<>();
+//   }
 
    @GET
    @Produces(MediaType.APPLICATION_JSON)
