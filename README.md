@@ -6,8 +6,12 @@ If you want to learn more about Quarkus, please visit its website: https://quark
 
 ## Dependencies
 
-Run first
+### Config
 
+* Cache manager config: ./deploy/cache-manager-application.properties
+* DB Sync config: ./deploy/db-sync-application.properties
+
+### Run
 * Db Syncer
 * Cache Manager
 * MySQL with Docker Compose `docker-compose -f deploy/docker-compose.yaml up`
@@ -25,11 +29,6 @@ You can run your application in dev mode that enables live coding using:
 ```shell
 http 'http://localhost:8082/demo?reload=true&all=true'
 ```
-
-## Config 
-
-* Cache manager config: ./deploy/cache-manager-application.properties
-* DB Sync config: ./deploy/db-sync-application.properties
 
 ## Eager caching scenario
 
