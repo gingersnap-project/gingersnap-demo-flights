@@ -34,7 +34,7 @@ http 'http://localhost:8082/demo?reload=true&all=true'
 
 1. List all the departure flights of a day (1,2,3,4,5,6,7) to pick up a code or use `UX1098-2-D` for example. This is a database call
 ```shell
-http http://localhost:8082/flights/2 
+http http://localhost:8082/flights/departures/2 
 ```
 
 2. Using the code flight, get the detail from the cache 
