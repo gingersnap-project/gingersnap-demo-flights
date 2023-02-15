@@ -82,7 +82,7 @@ public class FlightsResource {
                .orElseThrow(() -> new NotFoundException(String.format("Flight %s not found", code)));
          if (!flight.departure) {
             return Response.status(Response.Status.BAD_REQUEST.getStatusCode(),
-                  String.format("Flight %s is not departure type")).build();
+                  String.format("Flight %s is not departure type", code)).build();
          }
 
          DepartureFlightState state = stateOpt.get();
