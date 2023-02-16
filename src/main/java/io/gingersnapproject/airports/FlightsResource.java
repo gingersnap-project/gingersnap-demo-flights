@@ -111,14 +111,13 @@ public class FlightsResource {
    @Path("cache/{code}")
    public FlightDTO flights(@PathParam("code") String code) {
       CacheFlight flight = gingersnapAPIClient.flight(code);
-      CacheAirport destination = gingersnapAPIClient.destination(flight.destination_id);
 
       FlightDTO flightDTO = new FlightDTO();
       flightDTO.code = flight.code;
       flightDTO.name = flight.name;
       flightDTO.scheduleTime = flight.scheduleTime;
       flightDTO.state = flight.state;
-      flightDTO.destinationCity = destination.name;
+      flightDTO.destinationCity = flight.destination_id.name;
 
       return flightDTO;
    }

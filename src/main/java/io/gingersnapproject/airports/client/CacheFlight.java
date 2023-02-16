@@ -9,7 +9,6 @@ public class CacheFlight {
    public String scheduleTime;
    public String state;
    public int terminal;
-   public int aircraft_id;
    public int airline_id;
-   public int destination_id;
+   public CacheAirport destination_id;
 }
