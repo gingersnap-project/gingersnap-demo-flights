@@ -21,7 +21,15 @@ services:
       - ./setup.sql:/docker-entrypoint-initdb.d/setup.sql
     networks:
       - mynetwork
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 2s
+      retries: 10
+
   adminer:
+    depends_on:
+      db:
+        condition: service_healthy
     image: adminer
     restart: always
     networks:
@@ -29,14 +37,38 @@ services:
     ports:
       # Expose on 8090 so Quarkus Dev can run on 8080
       - 8090:8080
-#  ginersnap-cache-manager:
-#    image: quay.io/gingersnap/cache-manager:latest
-#    ports:
-#      - "11222:11222"
-#      - "8080:8080"
-#    container_name: gingersnap
-#    environment:
-#      USER: admin
-#      PASS: password
-#    networks:
-#      - mynetwork
+
+  cache-manager:
+    depends_on:
+      db:
+        condition: service_healthy
+    image: quay.io/gingersnap/cache-manager-mysql:latest
+    ports:
+      - 11222
+      - 8081:8081
+    volumes:
+      - ./cache-manager-application.properties:/work/config/application.properties
+    container_name: cache-manager
+    networks:
+      - mynetwork
+    healthcheck:
+      test: [ "CMD", "curl" ,"localhost:8081/q/health/ready" ]
+      timeout: 2s
+      retries: 10
+
+  db-syncer:
+    depends_on:
+      cache-manager:
+        condition: service_healthy
+    image: quay.io/gingersnap/db-syncer:latest
+    ports:
+      - 8083
+    volumes:
+      - ./db-sync-application.properties:/deployments/config/application.properties
+    container_name: db-syncer
+    networks:
+      - mynetwork
+    healthcheck:
+      test: [ "CMD", "curl" ,"localhost:8083/q/health/ready" ]
+      timeout: 2s
+      retries: 10
