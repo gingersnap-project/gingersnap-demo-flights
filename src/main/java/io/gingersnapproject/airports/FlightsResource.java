@@ -108,6 +108,14 @@ public class FlightsResource {
    @GET
    @Produces(MediaType.APPLICATION_JSON)
    @Blocking
+   @Path("cache/departures/get/{code}")
+   public DashboardFlightDTO flightFromCache(@PathParam("code") String code) {
+      return gingersnapAPIClient.departure(code);
+   }
+
+   @GET
+   @Produces(MediaType.APPLICATION_JSON)
+   @Blocking
    @Path("cache/{code}")
    public FlightDTO flights(@PathParam("code") String code) {
       CacheFlight flight = gingersnapAPIClient.flight(code);
