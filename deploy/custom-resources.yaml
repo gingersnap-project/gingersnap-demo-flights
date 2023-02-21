@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-credential-secret
+  namespace: test
+stringData:
+  type: "mysql"
+  host: "mysql.mysql.svc.cluster.local"
+  port: "3306"
+  database: "airports"
+  username: "gingersnap_user"
+  password: "password"
+---
+apiVersion: gingersnap-project.io/v1alpha1
+kind: Cache
+metadata:
+  name: cache
+  namespace: test
+spec:
+  dataSource:
+    dbType: MYSQL_8
+    secretRef:
+      name: db-credential-secret
+---
+apiVersion: gingersnap-project.io/v1alpha1
+kind: EagerCacheRule
+metadata:
+  name: us-flight
+  namespace: test
+spec:
+  cacheRef:
+    name: cache
+    namespace: test
+  tableName: airports.Flight
+  key:
+    keyColumns:
+      - code
+---
+apiVersion: gingersnap-project.io/v1alpha1
+kind: EagerCacheRule
+metadata:
+  name: us-airport
+  namespace: test
+spec:
+  cacheRef:
+    name: cache
+    namespace: test
+  tableName: airports.Airport
+  key:
+    keyColumns:
+      - id
+---
+apiVersion: gingersnap-project.io/v1alpha1
+kind: EagerCacheRule
+metadata:
+  name: us-aircraft
+  namespace: test
+spec:
+  cacheRef:
+    name: cache
+    namespace: test
+  tableName: airports.Aircraft
+  key:
+    keyColumns:
+      - id
+---
+apiVersion: gingersnap-project.io/v1alpha1
+kind: EagerCacheRule
+metadata:
+  name: us-airline
+  namespace: test
+spec:
+  cacheRef:
+    name: cache
+    namespace: test
+  tableName: airports.Airline
+  key:
+    keyColumns:
+      - id
