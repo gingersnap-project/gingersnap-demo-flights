@@ -1,7 +1,5 @@
 package io.gingersnapproject.airports;
 
-import io.gingersnapproject.airports.client.CacheAirport;
-import io.gingersnapproject.airports.client.CacheFlight;
 import io.gingersnapproject.airports.client.GingersnapAPIClient;
 import io.gingersnapproject.airports.model.Airport;
 import io.gingersnapproject.airports.model.DepartureFlightState;
@@ -21,7 +19,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -93,23 +90,11 @@ public class FlightsResource {
       return Response.notModified().build();
    }
 
-   // TODO: Lazy Query
-//
-//   @GET
-//   @Produces(MediaType.APPLICATION_JSON)
-//   @Blocking
-//   @Path("cache/departures/{day}")
-//   public List<FlightDTO> flightsFromCache(@PathParam("day") Integer day) {
-//      List<FlightDTO> departures = gingersnapAPIClient.departures(day);
-//
-//      return new ArrayList<>();
-//   }
-
    @GET
    @Produces(MediaType.APPLICATION_JSON)
    @Blocking
    @Path("cache/departures/get/{code}")
-   public DashboardFlightDTO flightFromCache(@PathParam("code") String code) {
+   public String flightFromCache(@PathParam("code") String code) {
       return gingersnapAPIClient.departure(code);
    }
 
@@ -117,17 +102,7 @@ public class FlightsResource {
    @Produces(MediaType.APPLICATION_JSON)
    @Blocking
    @Path("cache/{code}")
-   public FlightDTO flights(@PathParam("code") String code) {
-      CacheFlight flight = gingersnapAPIClient.flight(code);
-
-      FlightDTO flightDTO = new FlightDTO();
-      flightDTO.code = flight.code;
-      flightDTO.name = flight.name;
-      flightDTO.scheduleTime = flight.scheduleTime;
-      flightDTO.state = flight.state;
-      flightDTO.destinationCity = flight.destination_id.name;
-
-      return flightDTO;
+   public String flights(@PathParam("code") String code) {
+      return gingersnapAPIClient.flight(code);
    }
-
 }
