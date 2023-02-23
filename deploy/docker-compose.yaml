@@ -38,6 +38,20 @@ services:
       # Expose on 8090 so Quarkus Dev can run on 8080
       - 8090:8080
 
+  open-search:
+    image: opensearchproject/opensearch:2.4.0
+    ports:
+      - 9200
+    environment:
+      discovery.type: "single-node"
+      plugins.security.ssl.http.enabled: "false"
+    networks:
+      - mynetwork
+    healthcheck:
+      test: curl -u admin:admin http://localhost:9200/_cat/health >/dev/null || exit 1
+      timeout: 2s
+      retries: 10
+
   cache-manager:
     depends_on:
       db:
