@@ -4,6 +4,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
+import io.gingersnapproject.airports.model.Flight;
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
@@ -15,9 +16,9 @@ public interface GingersnapAPIClient {
 
    @GET
    @Path("/us-flight/{code}")
-   CacheFlight flight(@PathParam("code") String code);
+   String flight(@PathParam("code") String code);
 
    @GET
    @Path("/dashboard-departure/{code}")
-   DashboardFlightDTO departure(@PathParam("code") String code);
+   String departure(@PathParam("code") String code);
 }
