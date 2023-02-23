@@ -2,10 +2,9 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: db-credential-secret
-  namespace: test
 stringData:
   type: "mysql"
-  host: "mysql.mysql.svc.cluster.local"
+  host: "mysql.demo.svc.cluster.local"
   port: "3306"
   database: "airports"
   username: "gingersnap_user"
@@ -15,7 +14,6 @@ apiVersion: gingersnap-project.io/v1alpha1
 kind: Cache
 metadata:
   name: cache
-  namespace: test
 spec:
   dataSource:
     dbType: MYSQL_8
@@ -26,11 +24,10 @@ apiVersion: gingersnap-project.io/v1alpha1
 kind: EagerCacheRule
 metadata:
   name: us-flight
-  namespace: test
 spec:
   cacheRef:
     name: cache
-    namespace: test
+    namespace: demo
   tableName: airports.Flight
   key:
     keyColumns:
@@ -40,11 +37,10 @@ apiVersion: gingersnap-project.io/v1alpha1
 kind: EagerCacheRule
 metadata:
   name: us-airport
-  namespace: test
 spec:
   cacheRef:
     name: cache
-    namespace: test
+    namespace: demo
   tableName: airports.Airport
   key:
     keyColumns:
@@ -54,11 +50,10 @@ apiVersion: gingersnap-project.io/v1alpha1
 kind: EagerCacheRule
 metadata:
   name: us-aircraft
-  namespace: test
 spec:
   cacheRef:
     name: cache
-    namespace: test
+    namespace: demo
   tableName: airports.Aircraft
   key:
     keyColumns:
@@ -68,12 +63,24 @@ apiVersion: gingersnap-project.io/v1alpha1
 kind: EagerCacheRule
 metadata:
   name: us-airline
-  namespace: test
 spec:
   cacheRef:
     name: cache
-    namespace: test
+    namespace: demo
   tableName: airports.Airline
+  key:
+    keyColumns:
+      - id
+---
+apiVersion: gingersnap-project.io/v1alpha1
+kind: EagerCacheRule
+metadata:
+  name: country
+spec:
+  cacheRef:
+    name: cache
+    namespace: demo
+  tableName: airports.Country
   key:
     keyColumns:
       - id
