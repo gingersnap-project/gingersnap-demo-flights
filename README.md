@@ -49,3 +49,19 @@ http put 'localhost:8082/flights/UX1098-2-D?state=DEL'
 ```shell
 http 'http://localhost:8082/flights/cache/UX1098-2-D' 
 ```
+
+## Deploying to Openshift
+The Gingersnap Operator should already be installed in order for the CRs to be reconciled.
+
+1. Deploy all dependencies:
+```
+./deploy/kuberenetes/dependencies.sh
+```
+2. Deploy the demo application:
+```
+./mvnw clean package -Dquarkus.profile=k8s  -Dquarkus.kubernetes.deploy=true -Dquarkus.container-image.build=false
+kubectl -n demo port-forward svc/airports-demo 8080:80
+```
+
+In order to rebuild the container image, make sure to set `-Dquarkus.container-image.build=true`, otherwise the
+existing `quay.io/gingersnap/airports-demo` image will be used.
