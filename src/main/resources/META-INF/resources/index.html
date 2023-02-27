@@ -15,7 +15,7 @@
 
 <body>
     <div class="pf-c-page">
-        <main class="pf-c-page__main" tabindex="-1" style="padding: 20px;">            
+        <main class="pf-c-page__main" tabindex="-1" style="padding: 20px;">
             <section class="pf-c-page__main-section pf-m-limit-width pf-m-light">
                 <div class="pf-c-page__main-body">
                     <div class="pf-c-content">
@@ -37,6 +37,7 @@
                                 <th>Aircraft</th>
                                 <th>Airline</th>
                                 <th>State</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                     </table>
@@ -82,6 +83,15 @@
     <!----------------------------------------------------------------------------------------------------------------->
 
     <script>
+        function nz(data, field, subfield) {
+            try {
+                if (!data[field] || !data[field][subfield]) return "-"
+                return data[field][subfield];
+            } catch (error) {
+                return "-";
+            }
+        }
+
         function initTable() {
             // DataTable Config
             $("#data-table").DataTable({
@@ -97,30 +107,52 @@
                     {
                         data: null,
                         render: function (data) {
-                            return data.destination.iata + " - " + data.destination.name;
+                            return data.destination_id.iata + " - " + data.destination_id.name;
                         }
                     },
                     { data: "terminal" },
-                    { data: "aircraft.shortDescription" },
-                    { data: "airline.publicName" },
+                    {
+                        data: null,
+                        render: function (data) {
+                            return nz(data, "aircraft_id", "shortDescription");
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function (data) {
+                            return nz(data, "airline_id", "publicName");
+                        }
+                    },
                     {
                         data: null,
                         render: function (data) {
                             switch (data.state) {
                                 case "SCH": return "<span><font color='green'><b>Scheduled</b></font></span>";
+                                case "DEL": return "<span><font color='red'><b>DELAYED</b></font></span>";
                                 default: return data.state;
                             }
                         }
                     },
+                    {
+                        data: null,
+                        render: function (data, rowData) {
+                            return "<button class='pf-c-chip pf-m-overflow' type='button' onClick='updateFlight(\""
+                                + data.code
+                                + "\");' ><span class='pf-c-chip__text'>Update in DB</span></button>";
+                        }
+                    }
+
                 ],
                 order: [[1, 'asc']],
                 pageLength: 25,
                 ajax: function (data, callback, settings) {
                     sendRequest("GET", buildQueryURL(), function (data) {
-                        callback({ data: data });
+                        callback({ data: data.hits });
                     });
                 }
             });
+
+            setTimeout(refreshTable, 5000);
         }
 
         function buildQueryURL() {
@@ -174,6 +206,16 @@
             });
         }
 
+
+        function refreshTable() {
+            console.log("Autorefresh");
+            $("#data-table").DataTable().ajax.reload();
+            setTimeout(refreshTable, 5000);
+        }
+
+        function updateFlight(code) {
+            sendRequest("PUT", "/update/flight/" + code + "?state=DEL");
+        }
 
         $(document).ready(function () {
             initTable();

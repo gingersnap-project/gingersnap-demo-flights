@@ -6,6 +6,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 @RegisterRestClient(configKey = "gingersnap-api")
@@ -13,10 +14,10 @@ import javax.ws.rs.core.Response;
 public interface GingersnapAPIClient {
 
    @GET
-   @Path("/us-flight/{code}")
+   @Path("/rules/us-flight/{code}")
    Response flight(@PathParam("code") String code);
 
    @GET
    @Path("/rules")
-   Response flightsQuery(@PathParam("query") String code);
+   Response flightsQuery(@QueryParam("query") String query);
 }
