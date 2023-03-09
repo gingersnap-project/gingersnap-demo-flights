@@ -19,6 +19,9 @@ spec:
     dbType: MYSQL_8
     secretRef:
       name: db-credential-secret
+  deployment:
+    type: CLUSTER
+    replicas: 1
 ---
 apiVersion: gingersnap-project.io/v1alpha1
 kind: EagerCacheRule
@@ -32,6 +35,8 @@ spec:
   key:
     keyColumns:
       - code
+  query:
+    enabled: true
 ---
 apiVersion: gingersnap-project.io/v1alpha1
 kind: EagerCacheRule
@@ -45,6 +50,8 @@ spec:
   key:
     keyColumns:
       - id
+  query:
+    enabled: true
 ---
 apiVersion: gingersnap-project.io/v1alpha1
 kind: EagerCacheRule
@@ -58,6 +65,8 @@ spec:
   key:
     keyColumns:
       - id
+  query:
+    enabled: true
 ---
 apiVersion: gingersnap-project.io/v1alpha1
 kind: EagerCacheRule
@@ -71,6 +80,8 @@ spec:
   key:
     keyColumns:
       - id
+  query:
+    enabled: true
 ---
 apiVersion: gingersnap-project.io/v1alpha1
 kind: EagerCacheRule
@@ -84,3 +95,5 @@ spec:
   key:
     keyColumns:
       - id
+  query:
+    enabled: true
